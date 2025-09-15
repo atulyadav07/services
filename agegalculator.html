@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Accurately calculate your age in years, months, and days using ToolHub's Age Calculator.">
+  <meta name="keywords" content="age calculator, date of birth, toolhub">
+  <meta name="author" content="ToolHub">
+  <title>Age Calculator - ToolHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #121212;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header{
+      margin-left: -18px;
+      width: 100%;
+      max-width: 1200px;
+      padding: 1.5rem 2rem; 
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #0af;
+      text-shadow: 0 0 10px #0af88f;
+      user-select: none;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #0af88f10;
+      color: #0af;
+    }
+
+    .container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .card {
+      background: #1e1e1e;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .card h1 {
+      text-align: center;
+      color: #0af;
+      margin-bottom: 20px;
+    }
+
+    input[type="date"] {
+      width: 100%;
+      padding: 10px 15px;
+      margin: 10px 0;
+      background: #2a2a2a;
+      border: 1px solid #0af88f;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      background: linear-gradient(45deg, #0af, #0af88f);
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.03);
+      background: linear-gradient(45deg, #0cffaa, #0affd3);
+      box-shadow: 0 0 15px #0affd3;
+    }
+
+    button:active {
+      box-shadow: 0 0 20px #0af88f, 0 0 40px #0af;
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 15px;
+      color: #0af88f;
+      font-size: 18px;
+    }
+
+    .ads {
+      margin-top: 20px;
+      background: #0af88f10;
+      padding: 15px;
+      text-align: center;
+      color: #888;
+      font-size: 14px;
+      border-radius: 8px;
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h2>Age Calculator</h2>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <h1>Enter Your Date of Birth</h1>
+
+      <input type="date" id="dob" max="" />
+      <button onclick="calculateAge()">Calculate Age</button>
+
+      <div class="status" id="result"></div>
+
+      <div class="ads">[Ad Placeholder]</div>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 ToolHub. All rights reserved.
+  </footer>
+
+  <script>
+    // Set max date to today
+    document.getElementById("dob").max = new Date().toISOString().split("T")[0];
+
+    function calculateAge() {
+      const dobInput = document.getElementById("dob").value;
+      const result = document.getElementById("result");
+
+      if (!dobInput) {
+        result.innerText = "Please select your date of birth.";
+        return;
+      }
+
+      const dob = new Date(dobInput);
+      const today = new Date();
+
+      let years = today.getFullYear() - dob.getFullYear();
+      let months = today.getMonth() - dob.getMonth();
+      let days = today.getDate() - dob.getDate();
+
+      if (days < 0) {
+        months--;
+        days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+      }
+
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+
+      result.innerText = `You are ${years} year(s), ${months} month(s), and ${days} day(s) old.`;
+    }
+  </script>
+</body>
+</html>

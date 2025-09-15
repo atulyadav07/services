@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Advanced Calculator with matrix and scientific functions - ToolHub style." />
+<meta name="keywords" content="advanced calculator, scientific calculator, matrix calculator, toolhub" />
+<meta name="author" content="ToolHub" />
+<title>Advanced Calculator - ToolHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  body {
+    margin: 0;
+    background-color: #121212;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  header{
+    width: 100%;
+    max-width: 1200px;
+    padding: 1.5rem 2rem; 
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0af;
+    text-shadow: 0 0 10px #0af88f;
+    user-select: none;
+  }
+  footer {
+    text-align: center;
+    padding: 15px 20px;
+    background: #0af88f10;
+    color: #0af;
+    user-select: none;
+  }
+  .container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .card {
+    background: #1e1e1e;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(10, 255, 143, 0.15);
+    padding: 20px;
+    max-width: 420px;
+    flex: 1 1 420px;
+    display: flex;
+    flex-direction: column;
+  }
+  h1 {
+    color: #0af;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  #display {
+    background: #2a2a2a;
+    border: 1px solid #0af88f;
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 1.5rem;
+    color: #0af88f;
+    text-align: right;
+    min-height: 50px;
+    user-select: text;
+    margin-bottom: 15px;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+  }
+  .buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+  button {
+    background: linear-gradient(45deg, #0af, #0af88f);
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 12px 0;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+    user-select: none;
+    box-shadow: 0 0 5px #0af88f88;
+  }
+  button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 12px #0af, 0 0 20px #0af88f;
+  }
+  button:active {
+    box-shadow: 0 0 20px #0af88f, 0 0 40px #0af;
+    transform: scale(0.95);
+  }
+  /* Make = button larger */
+  #equals {
+    grid-column: span 1;
+    background: linear-gradient(45deg, #0af88f, #0affd1);
+    font-size: 1.25rem;
+    padding: 16px 0;
+  }
+
+  /* Number buttons group */
+  .num-group {
+    grid-column: span 3;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  /* Operators group */
+  .op-group {
+    grid-column: span 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  /* Scientific group */
+  .sci-group {
+    grid-column: span 5;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .matrix-section {
+    background: #121212;
+    border: 1px solid #0af88f;
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 10px;
+    color: #0af88f;
+  }
+  label {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    user-select: none;
+  }
+  textarea {
+    width: 100%;
+    height: 100px;
+    background: #2a2a2a;
+    color: #0af88f;
+    border: 1px solid #0af88f;
+    border-radius: 8px;
+    font-family: monospace, monospace;
+    font-size: 1rem;
+    resize: vertical;
+    padding: 10px;
+  }
+  .matrix-buttons {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  .matrix-buttons button {
+    flex: 1 1 45%;
+    min-width: auto;
+    font-size: 0.9rem;
+    padding: 10px 5px;
+  }
+  #matrixResult {
+    margin-top: 15px;
+    white-space: pre-wrap;
+    background: #2a2a2a;
+    border-radius: 8px;
+    padding: 10px;
+    font-family: monospace;
+    color: #0af88f;
+    max-height: 250px;
+    overflow: auto;
+  }
+  @media (max-width: 900px) {
+    .container {
+      flex-direction: column;
+      align-items: center;
+    }
+    .card {
+      max-width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h2>Advanced Calculator</h2>
+</header>
+<div class="container">
+  <!-- Calculator Card -->
+  <div class="card" aria-label="Calculator">
+    <h1>Calculator</h1>
+    <div id="display" aria-live="polite" role="textbox" aria-label="Calculator display">0</div>
+    <div class="buttons-grid" role="group" aria-label="Calculator buttons">
+      <!-- Clear and Delete -->
+      <button onclick="clearDisplay()" aria-label="Clear">C</button>
+      <button onclick="deleteLast()" aria-label="Delete last character">DEL</button>
+      <button onclick="inputOperator('(')" aria-label="Open parenthesis">(</button>
+      <button onclick="inputOperator(')')" aria-label="Close parenthesis">)</button>
+      <button onclick="inputOperator('/')" aria-label="Divide">÷</button>
+
+      <!-- Number buttons grouped -->
+      <div class="num-group" style="grid-column: span 3;">
+        <button onclick="inputDigit('7')" aria-label="Seven">7</button>
+        <button onclick="inputDigit('8')" aria-label="Eight">8</button>
+        <button onclick="inputDigit('9')" aria-label="Nine">9</button>
+        <button onclick="inputDigit('4')" aria-label="Four">4</button>
+        <button onclick="inputDigit('5')" aria-label="Five">5</button>
+        <button onclick="inputDigit('6')" aria-label="Six">6</button>
+        <button onclick="inputDigit('1')" aria-label="One">1</button>
+        <button onclick="inputDigit('2')" aria-label="Two">2</button>
+        <button onclick="inputDigit('3')" aria-label="Three">3</button>
+        <button onclick="inputDigit('0')" aria-label="Zero" style="grid-column: span 2;">0</button>
+        <button onclick="inputDot()" aria-label="Decimal point">.</button>
+      </div>
+
+      <!-- Operators grouped -->
+      <div class="op-group" style="grid-column: span 1;">
+        <button onclick="inputOperator('*')" aria-label="Multiply">×</button>
+        <button onclick="inputOperator('-')" aria-label="Minus">−</button>
+        <button onclick="inputOperator('+')" aria-label="Plus">+</button>
+        <button onclick="inputOperator('^')" aria-label="Power">^</button>
+        <button onclick="inputFunction('factorial')" aria-label="Factorial">!</button>
+      </div>
+
+      <!-- Equals button larger -->
+      <button id="equals" onclick="calculateResult()" aria-label="Equals">=</button>
+    </div>
+
+    <!-- Scientific functions -->
+    <div class="sci-group" role="group" aria-label="Scientific functions">
+      <button onclick="inputFunction('sqrt')" aria-label="Square root">√</button>
+      <button onclick="inputFunction('square')" aria-label="Square">x²</button>
+      <button onclick="inputFunction('cube')" aria-label="Cube">x³</button>
+      <button onclick="inputFunction('sin')" aria-label="Sine">sin</button>
+      <button onclick="inputFunction('cos')" aria-label="Cosine">cos</button>
+      <button onclick="inputFunction('tan')" aria-label="Tangent">tan</button>
+      <button onclick="inputFunction('log')" aria-label="Log base 10">log</button>
+      <button onclick="inputFunction('ln')" aria-label="Natural log">ln</button>
+    </div>
+  </div>
+
+  <!-- Matrix Calculator Card -->
+  <div class="card" aria-label="Matrix Calculator">
+    <h1>Matrix Calculator</h1>
+    <label for="matrixA">Matrix A (rows separated by new lines, numbers by spaces):</label>
+    <textarea id="matrixA" placeholder="e.g.&#10;1 2 3&#10;4 5 6"></textarea>
+
+    <label for="matrixB">Matrix B (optional for add/subtract/multiply):</label>
+    <textarea id="matrixB" placeholder="e.g.&#10;7 8 9&#10;1 0 1"></textarea>
+
+    <div class="matrix-buttons" role="group" aria-label="Matrix operations">
+      <button onclick="matrixAdd()">Add (A + B)</button>
+      <button onclick="matrixSubtract()">Subtract (A - B)</button>
+      <button onclick="matrixMultiply()">Multiply (A × B)</button>
+      <button onclick="matrixTranspose('A')">Transpose A</button>
+      <button onclick="matrixTranspose('B')">Transpose B</button>
+      <button onclick="matrixDeterminant('A')">Determinant A</button>
+      <button onclick="matrixDeterminant('B')">Determinant B</button>
+      <button onclick="matrixClear()">Clear</button>
+    </div>
+
+    <pre id="matrixResult" aria-live="polite" role="region" aria-label="Matrix result output"></pre>
+  </div>
+</div>
+<footer>
+  &copy; 2025 ToolHub. All rights reserved.
+</footer>
+
+<script>
+  // Calculator logic
+  const display = document.getElementById('display');
+  let expression = '';
+
+  function updateDisplay() {
+    display.textContent = expression || '0';
+  }
+
+  function inputDigit(d) {
+    expression += d;
+    updateDisplay();
+  }
+
+  function inputOperator(op) {
+    if (expression.length === 0 && ['+', '-', '*', '/', '^'].includes(op)) {
+      // Don't start expression with these operators
+      return;
+    }
+    expression += op;
+    updateDisplay();
+  }
+
+  function inputDot() {
+    if (expression === '' || /[\+\-\*\/\^\(\)]$/.test(expression)) {
+      expression += '0.';
+    } else {
+      // Add dot only if last number segment doesn't already have dot
+      const parts = expression.split(/[\+\-\*\/\^\(\)]/);
+      if (!parts[parts.length - 1].includes('.')) {
+        expression += '.';
+      }
+    }
+    updateDisplay();
+  }
+
+  function clearDisplay() {
+    expression = '';
+    updateDisplay();
+  }
+
+  function deleteLast() {
+    expression = expression.slice(0, -1);
+    updateDisplay();
+  }
+
+  // Factorial helper
+  function factorial(n) {
+    if (n < 0) return NaN;
+    if (n === 0 || n === 1) return 1;
+    let f = 1;
+    for (let i = 2; i <= n; i++) f *= i;
+    return f;
+  }
+
+  // Function application
+  function inputFunction(fn) {
+    try {
+      if (fn === 'square') {
+        let val = evalExpression(expression);
+        expression = `(${val})**2`;
+      } else if (fn === 'cube') {
+        let val = evalExpression(expression);
+        expression = `(${val})**3`;
+      } else if (fn === 'sqrt') {
+        expression = `Math.sqrt(${expression || '0'})`;
+      } else if (fn === 'factorial') {
+        let val = evalExpression(expression);
+        if (!Number.isInteger(val)) {
+          display.textContent = 'Factorial only for integers';
+          expression = '';
+          return;
+        }
+        expression = factorial(val).toString();
+      } else if (fn === 'sin') {
+        expression = `Math.sin(toRadians(${expression || '0'}))`;
+      } else if (fn === 'cos') {
+        expression = `Math.cos(toRadians(${expression || '0'}))`;
+      } else if (fn === 'tan') {
+        expression = `Math.tan(toRadians(${expression || '0'}))`;
+      } else if (fn === 'log') {
+        expression = `Math.log10(${expression || '0'})`;
+      } else if (fn === 'ln') {
+        expression = `Math.log(${expression || '0'})`;
+      }
+      updateDisplay();
+    } catch {
+      display.textContent = 'Invalid Expression';
+      expression = '';
+    }
+  }
+
+  function toRadians(deg) {
+    return deg * Math.PI / 180;
+  }
+
+  // Evaluate expression safely
+  function evalExpression(expr) {
+    expr = expr.replace(/\^/g, '**');
+    // Allow numbers, operators, parentheses, Math functions and white space
+    if (!/^[0-9+\-*/().Mathsincoagtlrexpwrfd \t\n]+$/.test(expr)) {
+      throw new Error('Invalid characters');
+    }
+    // eslint-disable-next-line no-eval
+    return eval(expr);
+  }
+
+  function calculateResult() {
+    try {
+      let val = evalExpression(expression);
+      if (typeof val === 'number' && !isNaN(val) && isFinite(val)) {
+        expression = val.toString();
+      } else {
+        expression = '';
+        display.textContent = 'Error';
+        return;
+      }
+      updateDisplay();
+    } catch {
+      display.textContent = 'Invalid Expression';
+      expression = '';
+    }
+  }
+
+  // Matrix parsing helper
+  function parseMatrix(text) {
+    if (!text.trim()) return [];
+    return text.trim().split('\n').map(row => row.trim().split(/\s+/).map(Number));
+  }
+
+  // Validate matrix (all rows equal length, all numbers)
+  function validateMatrix(matrix) {
+    if (matrix.length === 0) return false;
+    const rowLen = matrix[0].length;
+    if (rowLen === 0) return false;
+    for (const row of matrix) {
+      if (row.length !== rowLen) return false;
+      for (const val of row) {
+        if (isNaN(val)) return false;
+      }
+    }
+    return true;
+  }
+
+  function matrixToString(matrix) {
+    return matrix.map(row => row.join('\t')).join('\n');
+  }
+
+  // Matrix operations
+
+  function matrixAdd() {
+    const A = parseMatrix(document.getElementById('matrixA').value);
+    const B = parseMatrix(document.getElementById('matrixB').value);
+    const res = document.getElementById('matrixResult');
+    if (!validateMatrix(A) || !validateMatrix(B)) {
+      res.textContent = 'Invalid matrix input.';
+      return;
+    }
+    if (A.length !== B.length || A[0].length !== B[0].length) {
+      res.textContent = 'Matrices dimensions must match for addition.';
+      return;
+    }
+    const result = A.map((row, i) =>
+      row.map((val, j) => val + B[i][j])
+    );
+    res.textContent = matrixToString(result);
+  }
+
+  function matrixSubtract() {
+    const A = parseMatrix(document.getElementById('matrixA').value);
+    const B = parseMatrix(document.getElementById('matrixB').value);
+    const res = document.getElementById('matrixResult');
+    if (!validateMatrix(A) || !validateMatrix(B)) {
+      res.textContent = 'Invalid matrix input.';
+      return;
+    }
+    if (A.length !== B.length || A[0].length !== B[0].length) {
+      res.textContent = 'Matrices dimensions must match for subtraction.';
+      return;
+    }
+    const result = A.map((row, i) =>
+      row.map((val, j) => val - B[i][j])
+    );
+    res.textContent = matrixToString(result);
+  }
+
+  function matrixMultiply() {
+    const A = parseMatrix(document.getElementById('matrixA').value);
+    const B = parseMatrix(document.getElementById('matrixB').value);
+    const res = document.getElementById('matrixResult');
+    if (!validateMatrix(A) || !validateMatrix(B)) {
+      res.textContent = 'Invalid matrix input.';
+      return;
+    }
+    if (A[0].length !== B.length) {
+      res.textContent = 'Number of columns in A must equal number of rows in B for multiplication.';
+      return;
+    }
+    const result = [];
+    for (let i = 0; i < A.length; i++) {
+      result[i] = [];
+      for (let j = 0; j < B[0].length; j++) {
+        let sum = 0;
+        for (let k = 0; k < B.length; k++) {
+          sum += A[i][k] * B[k][j];
+        }
+        result[i][j] = sum;
+      }
+    }
+    res.textContent = matrixToString(result);
+  }
+
+  function matrixTranspose(matrixName) {
+    const res = document.getElementById('matrixResult');
+    const matText = document.getElementById(matrixName === 'A' ? 'matrixA' : 'matrixB').value;
+    const M = parseMatrix(matText);
+    if (!validateMatrix(M)) {
+      res.textContent = 'Invalid matrix input.';
+      return;
+    }
+    const transposed = M[0].map((_, i) => M.map(row => row[i]));
+    res.textContent = matrixToString(transposed);
+  }
+
+  // Matrix determinant for square matrices (recursive)
+  function matrixDeterminant(matrixName) {
+    const res = document.getElementById('matrixResult');
+    const matText = document.getElementById(matrixName === 'A' ? 'matrixA' : 'matrixB').value;
+    const M = parseMatrix(matText);
+    if (!validateMatrix(M)) {
+      res.textContent = 'Invalid matrix input.';
+      return;
+    }
+    if (M.length !== M[0].length) {
+      res.textContent = 'Determinant only defined for square matrices.';
+      return;
+    }
+    const det = determinant(M);
+    res.textContent = 'Determinant: ' + det;
+  }
+
+  function determinant(m) {
+    const n = m.length;
+    if (n === 1) return m[0][0];
+    if (n === 2) return m[0][0] * m[1][1] - m[0][1] * m[1][0];
+    let det = 0;
+    for (let col = 0; col < n; col++) {
+      let subMatrix = [];
+      for (let row = 1; row < n; row++) {
+        subMatrix.push(m[row].filter((_, c) => c !== col));
+      }
+      det += ((col % 2 === 0 ? 1 : -1) * m[0][col] * determinant(subMatrix));
+    }
+    return det;
+  }
+
+  function matrixClear() {
+    document.getElementById('matrixA').value = '';
+    document.getElementById('matrixB').value = '';
+    document.getElementById('matrixResult').textContent = '';
+  }
+
+  // Initialize display
+  updateDisplay();
+</script>
+</body>
+</html>

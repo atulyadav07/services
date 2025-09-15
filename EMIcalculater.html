@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="ToolHub EMI Calculator - Calculate loan EMI with interactive charts and glowing dark theme." />
+  <title>EMI Calculator</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #121212;
+      --accent1: #0af;
+      --accent2: #0af88f;
+      --text: #fff;
+      --card-bg: #1e1e1e;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header, footer {
+      text-align: center;
+      padding: 1rem;
+      background: #1a1a1a;
+      color: var(--accent2);
+      font-weight: bold;
+    }
+
+    .container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 1000px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--accent1);
+      margin-bottom: 2rem;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      color: var(--accent2);
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.7rem;
+      font-size: 1rem;
+      margin-top: 0.3rem;
+      border-radius: 8px;
+      border: 1px solid var(--accent2);
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent1);
+      box-shadow: 0 0 5px var(--accent1);
+    }
+
+    button {
+      margin-top: 2rem;
+      width: 100%;
+      background: linear-gradient(45deg, var(--accent1), var(--accent2));
+      padding: 0.9rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      color: #121212;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 10px var(--accent2);
+    }
+
+    .result-graph {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 2rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .results {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .results p {
+      font-size: 1rem;
+      margin: 0.5rem 0;
+    }
+
+    .chart-container {
+      flex: 1;
+      min-width: 250px;
+      max-width: 400px;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: auto !important;
+    }
+
+    @media (max-width: 768px) {
+      .card {
+        padding: 1.5rem;
+      }
+
+      .result-graph {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      button {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>📊 EMI Calculator</header>
+
+  <main class="container">
+    <div class="card">
+      <h1>EMI Calculator with Side Graph</h1>
+
+      <label for="amount">Loan Amount (₹)</label>
+      <input type="number" id="amount" placeholder="e.g. 500000">
+
+      <label for="interest">Annual Interest Rate (%)</label>
+      <input type="number" id="interest" step="0.1" placeholder="e.g. 7.5">
+
+      <label for="tenure">Tenure (in years)</label>
+      <input type="number" id="tenure" placeholder="e.g. 5">
+
+      <button onclick="calculateEMI()">Calculate EMI</button>
+
+      <div id="resultSection" style="display:none;" class="result-graph">
+        <div class="results">
+          <p><strong>Monthly EMI:</strong> ₹<span id="emiValue"></span></p>
+          <p><strong>Total Interest:</strong> ₹<span id="totalInterest"></span></p>
+          <p><strong>Total Payment:</strong> ₹<span id="totalPayment"></span></p>
+        </div>
+
+        <div class="chart-container">
+          <canvas id="emiChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>© 2025 ToolHub • All rights reserved</footer>
+
+  <script>
+    let chartInstance = null;
+
+    function calculateEMI() {
+      const amount = parseFloat(document.getElementById('amount').value);
+      const rate = parseFloat(document.getElementById('interest').value);
+      const tenureYears = parseInt(document.getElementById('tenure').value);
+
+      if (!amount || !rate || !tenureYears) {
+        alert("Please enter all values correctly.");
+        return;
+      }
+
+      const monthlyRate = rate / (12 * 100);
+      const tenureMonths = tenureYears * 12;
+
+      const emi = (amount * monthlyRate * Math.pow(1 + monthlyRate, tenureMonths)) /
+                  (Math.pow(1 + monthlyRate, tenureMonths) - 1);
+
+      const totalPayment = emi * tenureMonths;
+      const totalInterest = totalPayment - amount;
+
+      document.getElementById('emiValue').textContent = emi.toFixed(2);
+      document.getElementById('totalInterest').textContent = totalInterest.toFixed(2);
+      document.getElementById('totalPayment').textContent = totalPayment.toFixed(2);
+      document.getElementById('resultSection').style.display = 'flex';
+
+      // Draw chart
+      const ctx = document.getElementById('emiChart').getContext('2d');
+
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Principal Amount', 'Total Interest'],
+          datasets: [{
+            label: 'Loan Breakdown',
+            data: [amount, totalInterest],
+            backgroundColor: ['#0af', '#0af88f'],
+            borderColor: ['#0af', '#0af88f'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          animation: {
+            animateRotate: true,
+            duration: 1500
+          },
+          plugins: {
+            legend: {
+              labels: {
+                color: '#fff'
+              }
+            }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

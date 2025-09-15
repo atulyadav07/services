@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Enhance and upscale images offline using browser. Compare original and enhanced photos. Fully responsive and fast tool." />
+  <meta name="keywords" content="Offline Image Enhancer, Image Sharpener, Image Quality Improve, JS Tool" />
+  <meta name="author" content="YourName" />
+  <title>Offline AI Image Enhancer | Compare Original & Enhanced</title>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #121212;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+    }
+    header {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: #0af;
+      text-shadow: 0 0 5px #0af88f;
+      text-align: center;
+    }
+    main {
+      background: #1f1f1f;
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 700px;
+      width: 100%;
+      box-shadow: 0 4px 10px rgba(10, 175, 255, 0.25), inset 0 0 20px rgba(10, 175, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    label {
+      font-weight: 600;
+      color: #0af;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    input[type="file"] {
+      border: 2px dashed #0af;
+      background: #222;
+      color: #0af;
+      border-radius: 12px;
+      padding: 1rem;
+      cursor: pointer;
+      width: 100%;
+    }
+    input[type="file"]:hover {
+      background: #0af1;
+    }
+    button {
+      background: linear-gradient(45deg, #0af, #0af88f);
+      border: none;
+      color: #121212;
+      padding: 0.9rem 1.5rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #0af88f;
+    }
+    button:hover {
+      background: linear-gradient(45deg, #0cf, #0ff);
+      box-shadow: 0 0 15px #0cffaa;
+    }
+    .image-preview {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .image-preview img {
+      max-width: 100%;
+      width: 48%;
+      border: 2px solid #0af88f;
+      border-radius: 12px;
+    }
+    .status {
+      color: #0af88f;
+      font-size: 1rem;
+      text-align: center;
+    }
+    .hidden {
+      display: none;
+    }
+    footer {
+      margin-top: 3rem;
+      color: #444;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+    @media (max-width: 600px) {
+      .image-preview img {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>Offline AI Image Enhancer</header>
+
+<main>
+  <label for="imageInput">Select or Drag & Drop Image to Enhance</label>
+  <input type="file" id="imageInput" accept="image/*" />
+
+  <div class="image-preview hidden" id="previewContainer">
+    <img id="originalImg" alt="Original Image" />
+    <img id="enhancedImg" alt="Enhanced Image" />
+  </div>
+
+  <button id="enhanceBtn" class="hidden">Enhance Image</button>
+  <button id="downloadBtn" class="hidden">Download Enhanced Image</button>
+
+  <div class="status" id="statusMsg"></div>
+</main>
+
+<footer>&copy; 2025 YourName. All rights reserved.</footer>
+
+<script>
+  const imageInput = document.getElementById('imageInput');
+  const previewContainer = document.getElementById('previewContainer');
+  const originalImg = document.getElementById('originalImg');
+  const enhancedImg = document.getElementById('enhancedImg');
+  const enhanceBtn = document.getElementById('enhanceBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const statusMsg = document.getElementById('statusMsg');
+
+  let originalFile;
+  let enhancedImageUrl = '';
+
+  // Drag and drop support
+  const dropArea = imageInput.parentElement;
+  dropArea.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropArea.style.background = '#0af22222';
+  });
+  dropArea.addEventListener('dragleave', e => {
+    e.preventDefault();
+    dropArea.style.background = '';
+  });
+  dropArea.addEventListener('drop', e => {
+    e.preventDefault();
+    dropArea.style.background = '';
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      imageInput.files = e.dataTransfer.files;
+      handleImage(file);
+    }
+  });
+
+  imageInput.addEventListener('change', () => {
+    const file = imageInput.files[0];
+    if (file) {
+      handleImage(file);
+    }
+  });
+
+  function handleImage(file) {
+    if (!file.type.startsWith('image/')) {
+      statusMsg.textContent = 'Please select a valid image file.';
+      return;
+    }
+
+    originalFile = file;
+    const reader = new FileReader();
+    reader.onload = () => {
+      originalImg.src = reader.result;
+      previewContainer.classList.remove('hidden');
+      enhanceBtn.classList.remove('hidden');
+      enhancedImg.src = '';
+      downloadBtn.classList.add('hidden');
+      statusMsg.textContent = '';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  enhanceBtn.addEventListener('click', () => {
+    if (!originalFile) return;
+
+    statusMsg.textContent = 'Enhancing image locally... Please wait.';
+
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      let data = imageData.data;
+      let copy = new Uint8ClampedArray(data);
+
+      const w = canvas.width;
+      const h = canvas.height;
+
+      // Simple sharpening
+      for (let y = 1; y < h -1; y++) {
+        for (let x = 1; x < w -1; x++) {
+          for(let c = 0; c < 3; c++) {
+            let i = (y * w + x) * 4 + c;
+            let val = 5 * copy[i]
+                    - copy[i - 4]
+                    - copy[i + 4]
+                    - copy[i - w * 4]
+                    - copy[i + w * 4];
+            data[i] = Math.min(255, Math.max(0, val));
+          }
+        }
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+
+      // Apply contrast/brightness
+      const tempCanvas = document.createElement('canvas');
+      const tCtx = tempCanvas.getContext('2d');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      tCtx.filter = 'contrast(110%) brightness(105%)';
+      tCtx.drawImage(canvas, 0, 0);
+
+      enhancedImageUrl = tempCanvas.toDataURL('image/jpeg', 0.95);
+      enhancedImg.src = enhancedImageUrl;
+      downloadBtn.classList.remove('hidden');
+      statusMsg.textContent = 'Enhancement complete!';
+    };
+
+    const reader = new FileReader();
+    reader.onload = e => {
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(originalFile);
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    if (!enhancedImageUrl) return;
+    const link = document.createElement('a');
+    link.href = enhancedImageUrl;
+    link.download = 'enhanced-image.jpg';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+</script>
+
+</body>
+</html>

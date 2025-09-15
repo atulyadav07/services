@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Paste your HTML/CSS code and get a mobile & tablet responsive version instantly using Responsive HTML Generator." />
+  <meta name="keywords" content="Responsive HTML, mobile responsive generator, ToolHub, responsive tool" />
+  <meta name="author" content="ToolHub" />
+  <title>Responsive HTML Generator</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --accent1: #0af;
+      --accent2: #0af88f;
+      --card-bg: #1e1e1e;
+      --text: #fff;
+      --font: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header, footer {
+      text-align: center;
+      padding: 1.2rem;
+      background: #1a1a1a;
+      color: var(--accent2);
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 900px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--accent1);
+      margin-bottom: 2rem;
+      font-size: 1.8rem;
+    }
+
+    label {
+      display: block;
+      margin: 1rem 0 0.5rem;
+      font-weight: 500;
+      color: var(--accent2);
+    }
+
+    textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--accent2);
+      color: var(--text);
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: monospace;
+      resize: vertical;
+      min-height: 180px;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent1);
+      box-shadow: 0 0 8px var(--accent1);
+    }
+
+    button {
+      margin-top: 1.5rem;
+      width: 100%;
+      background: linear-gradient(45deg, var(--accent1), var(--accent2));
+      border: none;
+      padding: 0.9rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #121212;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 15px var(--accent2);
+    }
+
+    .status {
+      text-align: center;
+      color: var(--accent1);
+      margin-top: 1rem;
+      font-weight: 500;
+    }
+
+    .ad-placeholder {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      border: 2px dashed var(--accent2);
+      color: var(--accent2);
+      text-align: center;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    footer {
+      margin-top: auto;
+    }
+
+    @media (max-width: 768px) {
+      .card {
+        padding: 1.5rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      button {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>📱 Responsive HTML Generator</header>
+
+  <main class="container">
+    <div class="card">
+      <h1>Make Your HTML Responsive</h1>
+
+      <label for="htmlInput">Paste Your HTML + CSS Code:</label>
+      <textarea id="htmlInput" placeholder="Paste your full HTML/CSS code here..."></textarea>
+
+      <button onclick="makeResponsive()">Make Responsive</button>
+
+      <div class="status" id="statusMessage"></div>
+
+      <label for="responsiveOutput">Responsive Version:</label>
+      <textarea id="responsiveOutput" placeholder="Responsive HTML will appear here..." readonly></textarea>
+
+      <div class="ad-placeholder">[AdSense Placeholder]</div>
+    </div>
+  </main>
+
+  <footer>© 2025 ToolHub • All rights reserved</footer>
+
+  <script>
+    function makeResponsive() {
+      const input = document.getElementById('htmlInput').value;
+      const output = document.getElementById('responsiveOutput');
+      const status = document.getElementById('statusMessage');
+
+      if (!input.trim()) {
+        status.textContent = "⚠️ Please paste some HTML/CSS code first.";
+        output.value = '';
+        return;
+      }
+
+      // Inject viewport meta tag (if not present)
+      let responsiveHTML = input;
+
+      if (!/<meta\s+name=["']viewport["']/.test(responsiveHTML)) {
+        responsiveHTML = responsiveHTML.replace(/<head>/i, `<head>\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">`);
+      }
+
+      // Wrap content in a responsive container (if <body> exists)
+      responsiveHTML = responsiveHTML.replace(/<body[^>]*>/i, match => {
+        return `${match}\n  <div class="responsive-wrapper">`;
+      });
+
+      responsiveHTML = responsiveHTML.replace(/<\/body>/i, '</div>\n</body>');
+
+      // Add responsive CSS styles
+      const responsiveCSS = `
+<style>
+  .responsive-wrapper {
+    max-width: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+
+  img, video, iframe {
+    max-width: 100%;
+    height: auto;
+  }
+
+  table {
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .responsive-wrapper {
+      padding: 1rem 0.5rem;
+    }
+
+    h1, h2, h3 {
+      font-size: 1.2rem;
+    }
+
+    .nav, .sidebar {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    body {
+      font-size: 0.95rem;
+    }
+
+    button, input, textarea {
+      font-size: 1rem !important;
+    }
+  }
+</style>`;
+
+      responsiveHTML = responsiveHTML.replace(/<\/head>/i, `${responsiveCSS}\n</head>`);
+
+      output.value = responsiveHTML;
+      status.textContent = "✅ Responsive version generated!";
+    }
+  </script>
+</body>
+</html>

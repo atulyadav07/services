@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Convert PDF to editable Word files online. Edit text before downloading." />
+  <meta name="keywords" content="PDF to Word, editable PDF, convert PDF, Word docx online" />
+  <meta name="author" content="YourName" />
+  <title>PDF to Editable Word Tool</title>
+
+  <!-- Styles (Dark glowing theme) -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #121212;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+    }
+    header {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: #0af;
+      text-shadow: 0 0 5px #0af88f;
+    }
+    main {
+      background: #1f1f1f;
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 4px 10px rgba(10, 175, 255, 0.25),
+                  inset 0 0 20px rgba(10, 175, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    label {
+      color: #0af;
+      font-weight: 600;
+    }
+    input[type="file"] {
+      background: #222;
+      color: #0af;
+      border: 2px dashed #0af;
+      border-radius: 12px;
+      padding: 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    input[type="file"]:hover {
+      background: #0af1;
+    }
+    button {
+      background: linear-gradient(45deg, #0af, #0af88f);
+      border: none;
+      color: #121212;
+      padding: 0.9rem 1.5rem;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #0af88f;
+      transition: 0.3s ease;
+    }
+    button:hover {
+      background: linear-gradient(45deg, #0cf, #0ff);
+      box-shadow: 0 0 15px #0cffaa;
+    }
+    button:disabled {
+      background: #0a4d5d;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .status {
+      font-size: 1rem;
+      color: #0af88f;
+      text-align: center;
+      min-height: 1.2em;
+    }
+    .editor-area {
+      background: #181818;
+      border: 1px solid #0af;
+      border-radius: 12px;
+      padding: 1rem;
+      min-height: 200px;
+      color: #0af88f;
+      font-size: 1rem;
+      outline: none;
+      white-space: pre-wrap;
+      overflow-y: auto;
+    }
+
+    #submit{
+        margin-top: 10px;
+    }
+    .ad-space {
+      margin: 2rem 0;
+      background: #222;
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      color: #0af88f;
+      border: 1px dashed #0af88f;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    footer {
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: #444;
+      text-align: center;
+    }
+    @media (max-width: 520px) {
+      header { font-size: 1.6rem; }
+      button { font-size: 1rem; padding: 0.75rem 1rem; }
+      main { padding: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>PDF to Word</header>
+
+<main>
+  <form id="uploadForm">
+    <label for="pdfInput">Choose a PDF file</label>
+    <input type="file" id="pdfInput" accept="application/pdf" required />
+    <button type="submit" id="submit">Upload & Extract Text</button>
+  </form>
+
+  <div class="status" id="statusMsg"></div>
+
+  <div id="editor" class="editor-area" contenteditable="true" placeholder="Your editable content will appear here..."></div>
+
+  <button id="downloadBtn" disabled>Download as Word (DOCX)</button>
+</main>
+
+
+
+
+
+<!-- Ad Placeholder -->
+
+
+
+
+
+<footer>&copy; 2025 YourName. All rights reserved.</footer>
+
+<!-- JS Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.111/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.4.0/docx.umd.min.js"></script>
+
+<script>
+  const form = document.getElementById('uploadForm');
+  const input = document.getElementById('pdfInput');
+  const statusMsg = document.getElementById('statusMsg');
+  const editor = document.getElementById('editor');
+  const downloadBtn = document.getElementById('downloadBtn');
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const file = input.files[0];
+    if (!file) return;
+
+    statusMsg.textContent = 'Extracting text from PDF...';
+    editor.textContent = '';
+    downloadBtn.disabled = true;
+
+    const buffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+
+    let fullText = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const strings = content.items.map(item => item.str).join(' ');
+      fullText += strings + '\n\n';
+    }
+
+    editor.textContent = fullText.trim();
+    statusMsg.textContent = 'You can now edit the text.';
+    downloadBtn.disabled = false;
+  });
+
+  downloadBtn.addEventListener('click', async () => {
+    const { Document, Packer, Paragraph } = docx;
+    const doc = new Document();
+
+    const lines = editor.innerText.split('\n');
+    const paragraphs = lines.map(line => new Paragraph(line));
+    doc.addSection({ children: paragraphs });
+
+    statusMsg.textContent = 'Generating Word file...';
+    const blob = await Packer.toBlob(doc);
+
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'converted.docx';
+    a.click();
+
+    statusMsg.textContent = 'Download complete!';
+  });
+</script>
+
+</body>
+</html>
